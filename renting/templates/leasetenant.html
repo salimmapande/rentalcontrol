@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Create Tenant 
+{% endblock %} 
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-heading"><h1>Create Tenant</h1></div>
+    <div class="container-fluid">
+       <div class="card card-default d-lg-block">
+          <div class="row">
+             <div class="col col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <div class="card-title text-left alert alert-default"><b style="font-size:18px;">Create Tenant</b></div>
+                <div class="card-body">
+                   <form class="form-leasetenant" method="POST" action="/leasetenant" enctype="multipart/form-data">
+                     {{ form.hidden_tag() }}
+                     <div class="form-group row">
+                        <label for="txtPost" class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left">Photo:</label>
+         
+                        <div class="col-xl-6 col-md-6 col-xs-12">
+                            <span class="input-group-btn">
+                         
+                              <span class="btn btn-primary btn-file">
+                                 <input type="file" id="fileupload" name="image" multiple>
+                              </span>
+                            </span>
+                            <input type="text" class="form-control" readonly>
+                        </div>
+         
+                    </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.first_name.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.first_name(class="form-control", placeholder="First Name", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.surname.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.surname(class="form-control", placeholder="Surname", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.nida.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.nida(class="form-control", placeholder="NIDA Number", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.phone.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.phone(class="form-control", placeholder="Phone Number", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.email.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.email(class="form-control", placeholder="Email Address", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.house_id.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                        <div class="col-xl-6 col-md-6 col-xs-12">
+                       {{form.house_id.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left")}}
+                       <div>
+                          {{form.house_id(class="form-control")}}
+                       </div>
+                     </div>
+                      </div>  
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.num_room_to_take.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.num_room_to_take(class="form-control", placeholder="Number of rooms to take", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.price_each_room.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.price_each_room(class="form-control", placeholder="price for each room", autocomplete="off") }}
+                             </div>
+                     </div>
+                    
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.rent_per_month.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.rent_per_month(class="form-control", placeholder="price for each room", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.months_of_payment.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.months_of_payment(class="form-control", placeholder="Payable Months", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.total_payable.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.total_payable(class="form-control", placeholder="Rent payable", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.paidamount.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.paidamount(class="form-control", placeholder="Paid Amount", autocomplete="off") }}
+                             </div>
+                     </div>
+                      <div style="display: none;">
+                     
+                        {{form.paymentdate()}}
+                        {{form.date_start()}}
+                        {{form.date_end()}}
+                        {{form.month_name()}}
+                        {{form.tenant_id()}}
+                    </div>
+                      <br>
+                      <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Create">
+                   </form>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
+ <script>
+    let num_room = document.getElementById("num_room_to_take");
+    let total=0.00;
+    let rent = 0.00; 
+    let price_each_room = document.getElementById("price_each_room");
+    let rent_per_month = document.getElementById("rent_per_month")
+    price_each_room.onchange = function(){
+
+       rent = (price_each_room.value * num_room.value);
+       $('#rent_per_month').val(rent);
+    }
+    months_of_payment.onchange = function(){
+        let res = price_each_room.value;
+       total = (months_of_payment.value * rent_per_month.value);
+       $('#total_payable').val(total);
+    }
+ </script>
+{% endblock %}

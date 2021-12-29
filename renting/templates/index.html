@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Home Page
+{% endblock %}
+{% block content %}
+<h1 class="mt-4">Dashboard</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item active">Dashboard</li>
+</ol>
+    {% for month in tenant_month %}
+    <div class="col-md-2 mb-2">
+        <div class="card bg-success text-white shadow">
+           
+           <a href="tenantmonthly/{{month.month_name}}" style="text-decoration: none;">
+                <div class="card-body">
+                    
+                    <div class="text-white-50 small">{{month.month_name}} </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    {%endfor%}
+    
+
+
+
+
+{% endblock %}

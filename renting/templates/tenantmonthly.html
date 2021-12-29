@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Tenant Monthly
+{% endblock %} 
+{% block content %}
+<div class="content-heading"><h1>Tenant Monthly Payments</h1></div>
+
+<div class="card-body">
+    <table id="datatablesSimple">
+        <thead>
+            <tr>
+                <th>Tenant</th>
+                <th>Month Name </th>
+                <th>Due Amount</th>
+                <th>Paid Amount</th>
+                <th>Payment Date</th>
+                <th>Balance</th>
+                <th>Status</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            
+            </tr>
+            
+        </thead>
+           
+        <tbody>
+            {% for tena_month in tenant %}
+            <tr>
+                <td>{{ tena_month.first_name + ' ' + tena_month.surname}}</td>
+                <td style="text-align: right;">{{ tena_month.month_name }}</td>
+                <td style="text-align: right;">{{ tena_month.total_payable }}</td>
+                <td style="text-align: right;">{{ tena_month.paidamount }}</td>
+                <td style="text-align: right;">{{ tena_month.paymentdate }}</td>
+                <td style="text-align: right;">{{ tena_month.balance }}</td>
+               {%   if tena_month.balance < 0  %}
+               <td  style="background-color: rgb(255, 115, 0);"> 
+                Not Paid
+                </td>
+                {% else %}
+                <td style="background-color:rgb(47, 130, 255);">
+                   Paid
+                </td>
+                    {% endif %}
+                
+                <td style="background-color: green;"><a href="/#/{{ tena_month.id }}" ><span class="fa fa-info" style="font-size: 16px; color: white;" data-bs-toggle="tooltip" data-bs-placement="top" title="Info"></span></a> </td>
+                <td style="background-color: blue;"><a href="/updatetenant/{{ tena_month.id }}"> <span class="fa fa-marker" style='font-size:16px;color:white;' color="&#xf044;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></span></a> </td>
+                <td style="background-color: red;"><a href="/confirmdeletetenant/{{ tena_month.id }}"> <span class="fa fa-trash" style='font-size:16px;color:white;' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></span></a> </td>
+             
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+ </div>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Tenant 
+{% endblock %} 
+{% block content %}
+<div class="content-heading"><h1>Tenant List</h1></div>
+<div class="row">
+    <div class="col-lg-12 mb-2">
+        <a href="{{url_for('lease_tenant')}}"
+           class=" d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                class="fas fa-download fa-sm text-white-50"></i> Create new Tenant</a>
+    </div>
+</div>
+<div class="card-body">
+    <table id="datatablesSimple">
+        <thead>
+            <tr>
+                <th>Full Name </th>
+               
+                <th>NIDA Number</th>
+                <th>Phone Number</th>
+                <th>House Name</th>
+                <th>Rooms Occupied</th>
+                <th>Rent per month</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            
+        </thead>
+           
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.first_name + ' ' + result.surname}}</td>
+                <td style="text-align: right;">{{ result.nida }}</td>
+                <td style="text-align: right;">{{ result.phone }}</td>
+                <td style="text-align: right;">{{ result.house_name }}</td>
+                <td>{{ result.num_room_to_take }}</td>
+                <td>{{ result.rent_per_month }}</td>
+                <td style="background-color: green;"><a href="/#/{{ result.id }}" ><span class="fa fa-info" style="font-size: 16px; color: white;" data-bs-toggle="tooltip" data-bs-placement="top" title="Info"></span></a> </td>
+                <td style="background-color: blue;"><a href="/updatetenant/{{ result.id }}"> <span class="fa fa-marker" style='font-size:16px;color:white;' color="&#xf044;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></span></a> </td>
+                <td style="background-color: red;"><a href="/confirmdeletetenant/{{ result.id }}"> <span class="fa fa-trash" style='font-size:16px;color:white;' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></span></a> </td>
+                <td><a href="#">Select</a> </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+ </div>
+
+{% endblock %}

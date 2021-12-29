@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}
+House 
+{% endblock %} 
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-heading"><h1>House</h1></div>
+    <div class="container-fluid">
+       <div class="card card-default d-lg-block">
+          <div class="row">
+             <div class="col col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <div class="card-title text-left alert alert-default"><b style="font-size:18px;">Create house for rent</b></div>
+                <div class="card-body">
+                   <form class="form-house" method="POST" action="">
+                     {{ form.hidden_tag() }}
+                     <div class="form-group row">
+                        {{ form.house_name.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.house_name(class="form-control", placeholder="Jina la nyumba", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.house_location.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.house_location(class="form-control", placeholder="Location", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.number_of_room.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.number_of_room(class="form-control", placeholder="Number of rooms", autocomplete="off") }}
+                             </div>
+                     </div>
+                     
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.floor_number.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.floor_number(class="form-control", placeholder="Floor number", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <P></P>
+                     <div class="form-group row">
+                        {{ form.category.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.category(class="form-control", placeholder="category", autocomplete="off") }}
+                             </div>
+                     </div>
+                     
+                      <br>
+                      <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Create">
+                   </form>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
+
+{% endblock %}
