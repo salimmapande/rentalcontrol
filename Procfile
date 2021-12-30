@@ -1,1 +1,1 @@
-web: gunicorn rentalcontrol:app
+web: gunicorn rentalcontrol.wsgi
