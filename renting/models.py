@@ -3,8 +3,8 @@ from flask.app import Flask
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.operators import nullsfirst_op
 from sqlalchemy.sql.schema import ForeignKey
-#from werkzeug.datastructures import T
-from renting import db
+from renting import db, login_manager
+from renting import bcrypt 
 from wtforms_alchemy import ModelForm, Form
 from sqlalchemy import (
     Column,
@@ -16,7 +16,11 @@ from sqlalchemy import (
     func,
     Date, desc, asc
 )
+from flask_login import UserMixin
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 class Tenant(db.Model):
     __tablename__ = 'tenant'
@@ -28,7 +32,9 @@ class Tenant(db.Model):
     nida = db.Column(db.String(length=50), nullable = True)
     house_id = db.Column(db.Integer(), nullable = True)
     image_path = db.Column(db.String(200), nullable=True)
- 
+    rent_per_month = db.Column(db.Float(), nullable = True)
+    num_room_to_take = db.Column(db.Integer(), nullable = True)
+    price_each_room = db.Column(db.Integer(), nullable = True)
 
 class HouseProperty(db.Model):
     __tablename__ = 'house_property'
@@ -48,13 +54,14 @@ class TenantPayments(db.Model):
     date_start = Column(DateTime, nullable=True)
     date_end = Column(DateTime, nullable=True)
     tenant_id = Column(Integer, ForeignKey('tenant.id'), nullable=True)
-    num_room_to_take = db.Column(db.Integer(), nullable = True)
-    price_each_room = db.Column(db.Integer(), nullable = True)
+    house_id = db.Column(db.Integer(), ForeignKey('house_property.id'), nullable = True)
     total_payable = db.Column(db.Float(), nullable = True)
     months_of_payment = db.Column(db.Integer(), nullable =True)
-    rent_per_month = db.Column(db.Float(), nullable = True)
     paidamount = db.Column(db.Float(), nullable = True)
+    balanced_amount = Column(Float,nullable=True)
     paymentdate = db.Column(db.DateTime, nullable = True)
+    payment_receipt = Column(String, nullable=True)
+    
    
 
     def __repr__(self):
@@ -77,6 +84,33 @@ class TenantPayments(db.Model):
             TenantPayments(month_name="November"),
             TenantPayments(month_name="December"),
         ]
+
+    # @classmethod
+    # def get_peyment_year(self):
+    #     return [TenantPayments(year_name=i+2020) for i in range(100)]
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer(), primary_key = True)
+    first_name =  db.Column(db.String(length = 50), nullable = False)
+    surname =  db.Column(db.String(length = 50), nullable = False)
+    username = db.Column(db.String(length=30), nullable=False, unique=True)
+    phone =  db.Column(db.String(length = 15), nullable = False)
+    email = db.Column(db.String(length=50), nullable = True)
+    password_hash = db.Column(db.String(200), nullable = False)
+
+    @property
+    def password(self):
+        return self.password
+
+    @password.setter
+    def  password(self, plain_text_password):
+        self.password_hash = bcrypt.generate_password_hash(plain_text_password).decode('utf-8')
+
+    def check_password(self, attempted_password):
+        return bcrypt.check_password_hash(self.password_hash, attempted_password)
+
 
 
 

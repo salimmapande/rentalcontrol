@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Payment 
+{% endblock %} 
+{% block content %}
+<form class="form-inline" method="post" action="/searchtenant">  
+   {{ form.hidden_tag() }}
+  <div class="form-group row">
+    <label class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left"></label>
+    <div class="input-group">
+      
+      <input type="text" class="form-control" id="inputSearch" aria-label="Search for..." aria-describedby="btninputSearch" placeholder="Search for Tenant by phone number">
+      <button class="btn btn-primary" id="btninputSearch" type="button"><i class="fas fa-search"></i></button>
+    </div>
+  </div>
+  
+ 
+</form>
+<div class="content-wrapper">
+    <div class="content-heading"><h1>&nbsp; Make Payment</h1></div>
+    
+    <div class="container-fluid">
+       
+       <div class="card card-default d-lg-block">
+      
+          <div class="row">
+               
+             <div class="col col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <div class="card-title text-left alert alert-default"><b style="font-size:18px;">Make Payment</b></div>
+                <div class="card-body">
+                
+                   <form class="form-tenantpayment" method="POST" action="/tenantpayment">
+                     {{ form.hidden_tag() }}
+                     
+                     <div class="form-group row">
+                        {{form.house_id.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left")}}
+                        <div class="col-xl-6 col-md-6 col-xs-12">
+                        {{form.house_id(class="form-control", placeholder="Tenant", autocomplete="off")}}
+                        </div>   
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.tenant_id.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.tenant_id(class="form-control", placeholder="Tenant", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.rent_per_month.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.rent_per_month(class="form-control", placeholder="Rent payable", autocomplete="off", readonly=readonly) }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.balanced_amount.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.balanced_amount(class="form-control", placeholder="Due Amount", autocomplete="off", readonly=readonly) }}
+                             </div>
+                     </div>
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.paidamount.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.paidamount(class="form-control", placeholder="Amount to Pay", autocomplete="off") }}
+                             </div>
+                     </div>
+                     <p></p>
+                     
+                     <div class="form-group row">
+                        {{ form.date_end.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.date_end(class="form-control datepicker", placeholder="Payable Months", autocomplete="off") }}
+                             </div>
+                     </div>
+                     
+                    
+                    
+                     <p></p>
+                     <div class="form-group row">
+                        {{ form.payment_receipt.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
+                              <div class="col-xl-6 col-md-6 col-xs-12">
+                                 {{ form.payment_receipt(class="form-control", placeholder="Payment Receipt Number", autocomplete="off") }}
+                             </div>
+                     </div>
+                      <div style="display: none;">
+                     
+                        {{form.paymentdate()}}
+                        {{form.month_name()}}
+                        {{ form.date_start() }}
+                    </div>
+                    
+                      <br>
+                      <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Create">
+                   </form>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
+ <script>
+  
+  
+
+   let tenant_id_select = document.getElementById('tenant_id');
+   let date_end_select = document.getElementById('date_end')
+  
+   date_end_select.onchange = function(){
+      let start_date = new Date();
+      let end_date = new Date(date_end_select.value);
+     
+      var numofmonths = monthDiff(start_date, end_date);
+      var rent_per_month = document.getElementById('rent_per_month');
+      var total = document.getElementById('total_payable');
+      var total_payable = (rent_per_month.value * (numofmonths+1));
+      total.value = total_payable;
+
+
+   }
+ 
+   function monthDiff(d1, d2) {
+    var months;
+    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+    months -= d1.getMonth();
+    months += d2.getMonth();
+    return months <= 0 ? 0 : months;
+}
+
+function formatDate(date) {
+    var d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+document.getElementById('btninputSearch').onclick = function(){myFunc()};
+ function myFunc()
+ {
+    //alert('ok');
+    let phone = $('#inputSearch').val();
+    fetch('/searchtenant/' +phone).then(function(response, e)
+       {
+        //console.table(response);
+       
+            response.json().then(function(data)
+            {
+             
+                for(let tenant of data.tenants)
+                {
+                   $('#balanced_amount').val(tenant['balanced_amount']);
+                   $('#house_id').val(tenant['house_id']);
+                   $('#tenant_id').val(tenant['id']);
+                   $('#rent_per_month').val(tenant['rent_per_month']);
+                   
+                }
+               
+               
+            });
+           
+       });
+ }
+
+
+      
+
+
+ </script>
+{% endblock %}

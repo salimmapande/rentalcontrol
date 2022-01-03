@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Tenant Payment
+{% endblock %} 
+{% block content %}
+<div class="content-heading"><h1>Tenant Monthly Payments</h1></div>
+
+<div class="card-body">
+    <table id="datatablesSimple">
+        <thead>
+            <tr>
+                <th>Payer</th>
+                <th>House</th>
+                <th>Payment Date </th>
+                <th>Number of Months</th>
+                <th>Due Amount</th>
+                <th>Paid Amount</th>
+                <th>Payment Receipt</th>
+                <th>Balance</th>
+                <th>Status</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            
+            </tr>
+            
+        </thead>
+           
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.first_name + ' ' + payment.surname}}</td>
+                <td style="text-align: right;">{{ payment.house_name }}</td>
+                <td style="text-align: right;">{{ payment.paymentdate }}</td>
+                <td style="text-align: right;">{{ payment.months_of_payment }}</td>
+                <td style="text-align: right;">{{ payment.total_payable }}</td>
+                <td style="text-align: right;">{{ payment.paidamount }}</td>
+                <td style="text-align: right;">{{ " " }}</td>
+                <td style="text-align: right;">{{ payment.balanced_amount }}</td>
+               
+               {%   if payment.balanced_amount < 0.00 %}
+               <td  style="background-color: rgb(255, 115, 0);"> 
+                Not Paid
+                </td>
+                {% else %}
+                <td style="background-color:rgb(47, 130, 255);">
+                   Paid
+                </td>
+                    {% endif %}
+                
+                <td style="background-color: green;"><a href="/#/{{ payment.id }}" ><span class="fa fa-info" style="font-size: 16px; color: white;" data-bs-toggle="tooltip" data-bs-placement="top" title="Info"></span></a> </td>
+                <td style="background-color: blue;"><a href="/updatetenant/{{ payment.id }}"> <span class="fa fa-marker" style='font-size:16px;color:white;' color="&#xf044;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></span></a> </td>
+                <td style="background-color: red;"><a href="/confirmdeletetenant/{{ payment.id }}"> <span class="fa fa-trash" style='font-size:16px;color:white;' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></span></a> </td>
+             
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+ </div>
+
+{% endblock %}
