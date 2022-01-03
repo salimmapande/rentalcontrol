@@ -43,23 +43,13 @@ Update House
                            {% endfor %}
                         </select>
                        <p></p>
-                       Number of rooms:
-                       <input type="text" name="num_room_to_take" value="{{ tenant_to_update.num_room_to_take }}" class="form-control">
-                       <p></p>
+                  
                        Cost for each room:
                        <input type="text" id="price_each_room" name="price_each_room" value="{{ tenant_to_update.price_each_room }}" class="form-control">
                        <p></p>
                        Rent per Month:
                        <input type="text" d="rent_per_month" name="rent_per_month" value="{{ tenant_to_update.rent_per_month }}" class="form-control">
-                       <p></p>
-                       Months to Pay:
-                       <input type="text" id="months_of_payment" name="months_of_payment" value="{{ tenant_to_update.months_of_payment }}" class="form-control">
-                       <p></p>
-                       Total Payable:
-                       <input type="text" name="total_payable" value="{{ tenant_to_update.total_payable }}" class="form-control">
-                       <p></p>
-                       Paid Amount:
-                       <input type="text" name="paidamount" value="{{ tenant_to_update.paidamount }}" class="form-control">
+                  
                     </fieldset>
                       <br>
                    
@@ -72,16 +62,12 @@ Update House
     </div>
  </div>
  <script>
-       let num_room = document.getElementById("num_room_to_take");
+      
     let total=0.00;
     let rent = 0.00; 
     let price_each_room = document.getElementById("price_each_room");
     let rent_per_month = document.getElementById("rent_per_month")
-    price_each_room.onchange = function(){
-
-       rent = (price_each_room.value * num_room.value);
-       $('#rent_per_month').val(rent);
-    }
+   
     months_of_payment.onchange = function(){
         let res = price_each_room.value;
        total = (months_of_payment.value * rent_per_month.value);
