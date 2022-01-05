@@ -6,8 +6,11 @@ from types import resolve_bases
 from flask.helpers import url_for
 from flask.scaffold import _matching_loader_thinks_module_is_package
 import flask_login
+from sqlalchemy.sql.elements import BooleanClauseList
 from sqlalchemy.sql.expression import label
 from sqlalchemy.sql.functions import func
+from sqlalchemy.sql.sqltypes import Float
+from sqlalchemy.sql.type_api import to_instance
 from werkzeug.datastructures import  EnvironHeaders
 from werkzeug.utils import redirect, secure_filename
 from werkzeug.wrappers import request
@@ -266,18 +269,49 @@ def tenant_payment():
       
         _tenantobj = db.session.query(Tenant).filter_by(id=form.tenant_id.data).first()
         month_of_payment = month_diff(form.date_end.data, datetime.today())
-     
-        if form.paidamount.data != "" and form.paidamount.data is not None:
-            form.paymentdate.data = datetime.now()
-            form.total_payable.data = ((month_of_payment+1) * _tenantobj.rent_per_month)
-            form.balanced_amount.data = (float(form.paidamount.data) - float(form.total_payable.data))
-        else:
-            form.paymentdate.data = None
+        if form.paidamount.data == None or form.paidamount.data =="":
             form.paidamount.data=0.00
-            form.balanced_amount.data = 0.00
-
+        if form.balanced_amount.data == None or form.balanced_amount.data =="":
+            form.balanced_amount.data=0.00
+        if form.total_payable.data == None or form.total_payable.data =="":
+            form.total_payable.data = 0.00
+        form.paymentdate.data = datetime.now()
+        if float(form.balanced_amount.data) >= 0.00:
+            if float(form.paidamount.data) > 0.00:
+                form.paidamount.data  = float(form.paidamount.data) + float(form.balanced_amount.data)
+                if float(form.total_payable.data) > float(form.paidamount.data):
+                    form.balanced_amount.data = float(form.paidamount.data) - float(form.total_payable.data)
+                    #form.total_payable.data = float(form.paidamount.data) - float(form.total_payable.data)
+                else:
+                    form.balanced_amount.data = float(form.paidamount.data) - float(form.total_payable.data)
+                    #form.total_payable.data = float(form.total_payable.data) - float(form.balanced_amount.data)
+            else:
+                form.paidamount.data = float(form.balanced_amount.data)
+                if float(form.balanced_amount.data) < float(form.total_payable.data):
+                    form.total_payable.data = float(form.balanced_amount.data) - float(form.total_payable.data)
+                    form.paidamount.data = 0.00
+                else:
+                    form.total_payable.data = float(form.balanced_amount.data) - float(form.total_payable.data)
+                    form.paidamount.data = 0.00
+                form.total_payable.data = float(form.paidamount.data) - float(form.total_payable.data)
+                #form.balanced_amount.data = float(form.paidamount.data) - float(form.total_payable.data)
+        else:
+            if float(form.paidamount.data) > 0.00:
+                removed_minus= form.balanced_amount.data[1:]
+                if float(removed_minus) > float(form.paidamount.data):
+                    form.balanced_amount.data = float(form.balanced_amount.data) + float(form.paidamount.data)
+                    form.total_payable.data = float(form.total_payable.data) + float(removed_minus)
+                else:
+                    form.balanced_amount.data = float(form.paidamount.data) + float(form.balanced_amount.data)
+                    form.total_payable.data = float(form.paidamount.data) - float(form.total_payable        .data)
+               # form.total_payable.data = 
+            else:
+                form.total_payable.data = float(form.balanced_amount.data) - float(form.total_payable.data)
+                form.balanced_amount.data = float(form.total_payable.data)
+                form.paidamount.data = 0.00
+                
         month = datetime.today()
-        dt = calendar.monthrange(month.year,month.month)[1]
+        #dt = calendar.monthrange(month.year,month.month)[1]
         
         # retuns the last date of the month: datetime.strptime('{}/{}/{}'.format(dt,month.month,month.year),'%d/%m/%Y')
         _tenant_month = TenantPayments(month_name = calendar.month_name[month.month], date_start = datetime.today(),  date_end = form.date_end.data, tenant_id =form.tenant_id.data, total_payable = form.total_payable.data, months_of_payment = month_of_payment+1, paidamount = form.paidamount.data, paymentdate = datetime.today(), house_id = form.house_id.data, balanced_amount = form.balanced_amount.data, payment_receipt = form.payment_receipt.data)
@@ -291,15 +325,37 @@ def tenant_payment():
     return render_template('tenantpayment.html', form=form, house = house)
 
 # CREATE PAYMENT #### ENDS
-# LIST OF PAYMENTS
+# LIST OF PAYMENTS BEGINS
 @app.route('/paymentlist')
 def payment_list():
     
-    payments = db.session.query(TenantPayments, Tenant, HouseProperty).filter(Tenant.id == TenantPayments.tenant_id, HouseProperty.id == Tenant.house_id).add_columns(Tenant.first_name,Tenant.surname, TenantPayments.total_payable,HouseProperty.house_name, TenantPayments.paidamount, TenantPayments.paymentdate, TenantPayments.balanced_amount, TenantPayments.months_of_payment)
+    payments = db.session.query(TenantPayments, Tenant, HouseProperty).filter(Tenant.id == TenantPayments.tenant_id, HouseProperty.id == Tenant.house_id).add_columns(TenantPayments.id,Tenant.first_name,Tenant.surname, TenantPayments.total_payable,HouseProperty.house_name, TenantPayments.paidamount, TenantPayments.paymentdate, TenantPayments.balanced_amount, TenantPayments.months_of_payment)
     return render_template('paymentlist.html', payments = payments)
+# LIST OF PAYMENTS #### ENDS
 
+#DELETE A PAYMENT ### BEGINS
+@app.route('/deletepayment/<int:id>', methods=['GET','POST'])
+def delete_payment(id):
+    payment_to_delete = TenantPayments.query.get_or_404(id)
+    try:
+        db.session.delete(payment_to_delete)
+        db.session.commit()
+        return redirect(url_for('payment_list'))
+    except ValueError:
+        flash('There was error {ValueError} delete payment')
+
+#DELETE A PAYMENT ###ENDS
+
+#CONFIRM DELETE A PAYMENT ### BEGINS
+@app.route('/confirmdeletepayment/<int:id>', methods=['GET','POST'])
+def confirm_delete_payment(id):
+    to_delete = TenantPayments.query.get_or_404(id)
+    return render_template('confirmdeletepayment.html', id = id, to_delete=to_delete)
+#CONFIRM DELETE A PAYMENT #### ENDS
+
+###########################################
 # FUNCTIONS
-# SEARCH TENANTS BY HOUSE_ID ## BEGINS
+# SEARCH FOR TENANTS BY HOUSE_ID ## BEGINS
 @app.route('/house/<house_id>')
 def tenant_by_id(house_id):
     

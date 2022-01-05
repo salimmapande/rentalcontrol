@@ -13,7 +13,7 @@ Tenant Payment
                 <th>Payer</th>
                 <th>House</th>
                 <th>Payment Date </th>
-                <th>Number of Months</th>
+                <th>Months</th>
                 <th>Due Amount</th>
                 <th>Paid Amount</th>
                 <th>Payment Receipt</th>
@@ -32,7 +32,7 @@ Tenant Payment
             <tr>
                 <td>{{ payment.first_name + ' ' + payment.surname}}</td>
                 <td style="text-align: right;">{{ payment.house_name }}</td>
-                <td style="text-align: right;">{{ payment.paymentdate }}</td>
+                <td style="text-align: right;">{{ payment.paymentdate.strftime("%Y-%m-%d") }}</td>
                 <td style="text-align: right;">{{ payment.months_of_payment }}</td>
                 <td style="text-align: right;">{{ payment.total_payable }}</td>
                 <td style="text-align: right;">{{ payment.paidamount }}</td>
@@ -51,7 +51,7 @@ Tenant Payment
                 
                 <td style="background-color: green;"><a href="/#/{{ payment.id }}" ><span class="fa fa-info" style="font-size: 16px; color: white;" data-bs-toggle="tooltip" data-bs-placement="top" title="Info"></span></a> </td>
                 <td style="background-color: blue;"><a href="/updatetenant/{{ payment.id }}"> <span class="fa fa-marker" style='font-size:16px;color:white;' color="&#xf044;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></span></a> </td>
-                <td style="background-color: red;"><a href="/confirmdeletetenant/{{ payment.id }}"> <span class="fa fa-trash" style='font-size:16px;color:white;' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></span></a> </td>
+                <td style="background-color: red;"><a href="/confirmdeletepayment/{{ payment.id }}"> <span class="fa fa-trash" style='font-size:16px;color:white;' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></span></a> </td>
              
             </tr>
             {% endfor %}

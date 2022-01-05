@@ -33,9 +33,10 @@ class TenantPaymentForm(FlaskForm):
     paymentenddate = StringField(label="Payment End Date: ")
     month_name = StringField()
     date_start = DateField("From: ", validators=None, format="%Y-%m-%d", default = datetime.now())
-    date_end = DateField("Valid until: ", validators=None, format="%Y-%m-%d", default=datetime.now())
+    date_end = DateField("Valid until: ", validators=[DataRequired()], format="%Y-%m-%d", default=datetime.now())
     payment_receipt = StringField(label="Payment Receipt:")
     rent_per_month = StringField(label="Rent Per Month")
+    #inputSearch = StringField(validators=[DataRequired()])
     submit = SubmitField(label="Create")
 
 
