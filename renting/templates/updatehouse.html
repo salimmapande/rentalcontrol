@@ -6,33 +6,33 @@ Update House
 {% block content %}
 
 <div class="content-wrapper">
-    <div class="content-heading"><h1>Update House</h1></div>
+    <div class="content-heading"><h1>BADILI TAARIFA ZA NYUMBA</h1></div>
     <div class="container-fluid">
        <div class="card card-default d-lg-block">
           <div class="row">
              <div class="col col-xs-12 col-sm-8 col-md-8 col-lg-8">
-                <div class="card-title text-left alert alert-default"><b style="font-size:22px;">Update house details</b></div>
+                <div class="card-title text-left alert alert-default"><b style="font-size:22px;">TAARIFA ZA NYUMBA</b></div>
                 <div class="card-body">
                    <form class="form-updatehouse" method="POST" action="/updatehouse/{{house_to_update.id}}">
                      
                       <fieldset>
                         <legend></legend>
-                        House Name:
+                        JINA LA NYUMBA:
                        <input type="text" name="house_name" value="{{ house_to_update.house_name }}" class="form-control">
                        <p></p>
-                       Location:
+                       SEHEMU ILIPO:
                        <input type="text" name="house_location" value="{{ house_to_update.house_location }}" class="form-control">
                        <p></p>
-                       floor Number:
+                       GOROFA YA?:
                        <input type="text" name="floor_number" value="{{ house_to_update.floor_number }}" class="form-control">
                        <p></p>
-                       Number of Rooms:
+                       IDADI YA VYUMBA:
                        <input type="text" name="number_of_room" value="{{ house_to_update.number_of_room }}" class="form-control">
                        <p></p>
-                       Category:
+                       AINA YA NYUMBA:
                        <input type="text" name="category" value="{{ house_to_update.category }}" class="form-control">
                        <p></p>
-                       Rent Amount:
+                       KIASI CHA KODI:
                        <input type="text" name="rent_amount" value="{{ house_to_update.rent_amount }}" class="form-control">
                       
                     </fieldset>

@@ -1,11 +1,13 @@
+#from _typeshed import ReadableBuffer
 from datetime import date, datetime
-from os import error, stat
+from os import error, pathsep, stat
 import re
 from types import resolve_bases
 #from typing_extensions import Required
 from flask.helpers import url_for
 from flask.scaffold import _matching_loader_thinks_module_is_package
 import flask_login
+from sqlalchemy.orm import query
 from sqlalchemy.sql.elements import BooleanClauseList
 from sqlalchemy.sql.expression import label
 from sqlalchemy.sql.functions import func
@@ -14,6 +16,8 @@ from sqlalchemy.sql.type_api import to_instance
 from werkzeug.datastructures import  EnvironHeaders
 from werkzeug.utils import redirect, secure_filename
 from werkzeug.wrappers import request
+from wtforms.fields import choices
+from wtforms.form import Form
 from wtforms.validators import ValidationError
 from wtforms.widgets.core import DateTimeLocalInput, TableWidget
 from renting import app
@@ -24,10 +28,14 @@ from sqlalchemy import (Table, Column, String, Integer,
                         MetaData, select)
 from flask_login import login_user, logout_user, current_user
 from sqlalchemy.sql import func
-
+import renting
+from twilio.rest import Client
 from renting.forms import HouseForm, TenantForm, TenantPaymentForm, RegisterForm, LoginForm
 from renting.models import HouseProperty, Tenant, TenantPayments, User
+
 from os.path import os, dirname, realpath
+account_sid ="" #"AC23ae688c6704ed6fb3b1ca2204fb9b2f"
+auth_token = "" #"51f5831d6594363a0d6a4cdbcd66a211"
 # LOGIN USER BEGINS
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
@@ -100,7 +108,7 @@ def house_list_page():
 def house_page():
     form =  HouseForm()
     if form.validate_on_submit():
-        _house = HouseProperty(house_name = form.house_name.data, house_location = form.house_location.data,floor_number = form.floor_number.data, number_of_room = form.number_of_room.data,category = form.category.data)
+        _house = HouseProperty(house_name = form.house_name.data.upper(), house_location = form.house_location.data.upper(),floor_number = form.floor_number.data, number_of_room = form.number_of_room.data,category = form.category.data.upper())
         try:
             db.session.add(_house)
             db.session.commit()
@@ -168,7 +176,7 @@ def lease_tenant():
             flash('Allowed image types are -> png, jpg, jpeg, gif', category='danger')
             return redirect(request.url)
 
-        
+        form.house_id.choices=[(h.id, h.haouse_name) for h in HouseProperty.query.all()]
         houseObj = db.session.query(HouseProperty).filter_by(id = form.house_id.data).first()
         num_rooms = houseObj.number_of_room
         num_of_room_taken = 0
@@ -183,7 +191,7 @@ def lease_tenant():
             flash(f'This house has only {rooms_available} room(s) left, please try another house', category='danger')
             return redirect(request.url)
 
-        _tenant = Tenant(first_name = form.first_name.data, surname = form.surname.data,nida = form.nida.data, phone = form.phone.data, email = form.email.data, house_id = form.house_id.data, image_path = os.path.join(app.config['UPLOAD_FOLDER'],filename), rent_per_month = form.rent_per_month.data, num_room_to_take = form.num_room_to_take.data,price_each_room = form.price_each_room.data)
+        _tenant = Tenant(first_name = form.first_name.data.upper(), surname = form.surname.data.upper(),nida = form.nida.data, phone = form.phone.data, email = form.email.data, house_id = form.house_id.data, image_path = os.path.join(app.config['UPLOAD_FOLDER'],filename), rent_per_month = form.rent_per_month.data, num_room_to_take = form.num_room_to_take.data,price_each_room = form.price_each_room.data)
         db.session.add(_tenant)
         db.session.commit()
         return redirect(url_for('tenant_list_page'))
@@ -206,26 +214,13 @@ def update_tenant_page(id):
     state = {'house_id':selected}
     #flash(state)
     if request.method == 'POST':
-        #flash(request.form['house_id'])
-        # if form.paidamount.data != "" and form.paidamount.data is not None:
-        #     form.paymentdate.data = datetime.now()
-        # else:
-        #      form.paymentdate.data = None
-        #      form.paidamount.data=0.00
-    
-        db.session.query(Tenant).filter_by(id=id).update({'first_name': request.form['first_name'],
-                'surname': request.form['surname'],
+
+        db.session.query(Tenant).filter_by(id=id).update({'first_name': request.form['first_name'].upper(),
+                'surname': request.form['surname'].upper(),
                 'nida': request.form['nida'],
                 'house_id': request.form['house_id'],
                 'phone': request.form['phone'],
                 'email': request.form['email'],})
-
-        # db.session.query(TenantPayments).update({'total_payable':request.form['total_payable'],
-        #         'num_room_to_take': request.form['num_room_to_take'],
-        #         'paidamount': request.form['paidamount'],
-        #         'price_each_room': request.form['price_each_room'],
-        #         'rent_per_month': request.form['rent_per_month'],
-        #         'months_of_payment': request.form['months_of_payment'],})
    
         try:
             db.session.commit()
@@ -233,8 +228,6 @@ def update_tenant_page(id):
         except ValidationError:
              flash('There was error {ValidationError} updating tenant', category='danger')
     
-   
-    #housename = house.house_name
     return render_template('updatetenant.html', form = form, tenant_to_update = tenant_to_update, house=house, choices = choices, state=state)
 
 #DELETE TENANT
@@ -267,7 +260,7 @@ def tenant_payment():
     house = HouseProperty.query
     if form.validate_on_submit():
       
-        _tenantobj = db.session.query(Tenant).filter_by(id=form.tenant_id.data).first()
+        form.tenant_id.choices = [(t.id,t.first_name+'-'+t.surname+'-'+str(t.rent_per_month)) for t in Tenant.query.all()]
         month_of_payment = month_diff(form.date_end.data, datetime.today())
         if form.paidamount.data == None or form.paidamount.data =="":
             form.paidamount.data=0.00
@@ -276,39 +269,72 @@ def tenant_payment():
         if form.total_payable.data == None or form.total_payable.data =="":
             form.total_payable.data = 0.00
         form.paymentdate.data = datetime.now()
-        if float(form.balanced_amount.data) >= 0.00:
-            if float(form.paidamount.data) > 0.00:
-                form.paidamount.data  = float(form.paidamount.data) + float(form.balanced_amount.data)
+        checkbalance_advanced = db.session.query(db.session.query(TenantPayments).filter(TenantPayments.tenant_id == form.tenant_id.data).order_by(TenantPayments.tenant_id.desc()).filter(TenantPayments.balanced_amount > 0.0).exists()
+).scalar()
+       
+        checkbalance_owed = db.session.query(db.session.query(TenantPayments).filter(TenantPayments.tenant_id == form.tenant_id.data).order_by(TenantPayments.tenant_id.desc()).filter(TenantPayments.balanced_amount < 0).exists()
+).scalar()
+       
+        if form.paymenttype.data == "LIPA KUANZIA SASA":
+            if float(form.balanced_amount.data) < 0:
+                flash('Unatakiwa kulipa deni, tafadhali chagua aina ya malipo kulipa deni', category='danger')
+                return redirect(request.url)
+            else:
+                pass
+           
+            if float(form.balanced_amount.data) > 0.0:
+                if float(form.total_payable.data) == 0.0:
+                    flash(f'Tafadhali chagua tarehe ya mwisho ya malipo', category='danger')
+                    return redirect(request.url)
+            if float(form.paidamount.data) > 0:
                 if float(form.total_payable.data) > float(form.paidamount.data):
-                    form.balanced_amount.data = float(form.paidamount.data) - float(form.total_payable.data)
-                    #form.total_payable.data = float(form.paidamount.data) - float(form.total_payable.data)
+                    form.balanced_amount.data = float(form.balanced_amount.data) + float(form.paidamount.data) - float(form.total_payable.data)
                 else:
-                    form.balanced_amount.data = float(form.paidamount.data) - float(form.total_payable.data)
-                    #form.total_payable.data = float(form.total_payable.data) - float(form.balanced_amount.data)
+                    _paidamount = float(form.paidamount.data) + float(form.balanced_amount.data)
+                    form.paidamount.data = _paidamount
+                    form.balanced_amount.data = _paidamount - float(form.total_payable.data)
             else:
+                #form.total_payable.data = float(form.total_payable.data) - float(form.balanced_amount.data)
                 form.paidamount.data = float(form.balanced_amount.data)
-                if float(form.balanced_amount.data) < float(form.total_payable.data):
-                    form.total_payable.data = float(form.balanced_amount.data) - float(form.total_payable.data)
-                    form.paidamount.data = 0.00
-                else:
-                    form.total_payable.data = float(form.balanced_amount.data) - float(form.total_payable.data)
-                    form.paidamount.data = 0.00
-                form.total_payable.data = float(form.paidamount.data) - float(form.total_payable.data)
-                #form.balanced_amount.data = float(form.paidamount.data) - float(form.total_payable.data)
+                form.balanced_amount.data = float(form.balanced_amount.data) - float(form.total_payable.data)
+                
+           
+        elif form.paymenttype.data == "LIPA DENI":
+            if float(form.balanced_amount.data) > 0.0:
+                flash('Huna deni, tafadhali chagua aina ya malipo, kulipa kuanzia sasa', category='danger')
+                return redirect(request.url)
+            if float(form.balanced_amount.data) < 0.0:
+                paymentObj = db.session.query(TenantPayments).filter(TenantPayments.tenant_id == form.tenant_id.data).filter(TenantPayments.balanced_amount < 0).first()
+              
+                payment_id = int(paymentObj.id)
+                if float(form.paidamount.data) > 0:
+                    if float(form.total_payable.data) > float(form.paidamount.data):
+                        form.balanced_amount.data = float(form.balanced_amount.data) - float(form.paidamount.data)
+                    else:
+                        form.balanced_amount.data = float(form.paidamount.data) - float(form.total_payable.data)
+                to_be_updated = db.session.query(TenantPayments).filter_by(id=payment_id).first()
+                to_be_updated.balanced_amount =  form.balanced_amount.data
+                to_be_updated.paidamount = form.paidamount.data
+                to_be_updated.total_payable = form.total_payable.data
+        
+                db.session.commit()
+                tenObj = db.session.query(Tenant).filter_by(id=form.tenant_id.data).first()
+                fullname = tenObj.first_name+'-'+tenObj.surname
+                houseObj = db.session.query(HouseProperty).filter_by(id = form.house_id.data).first()
+                client = Client(account_sid, auth_token)
+
+                message = client.messages \
+                    .create(
+                        body=f'Deni la shilingi: {form.balanced_amount.data} kwa nyumba: {houseObj.house_name} limelipwa na: {fullname} tarehe: {datetime.today()}',
+                        from_='+12542795811',
+                        to='+255 769 176 767'
+                    )
+
+                print(message.sid)
+                return redirect(url_for('payment_list'))    
         else:
-            if float(form.paidamount.data) > 0.00:
-                removed_minus= form.balanced_amount.data[1:]
-                if float(removed_minus) > float(form.paidamount.data):
-                    form.balanced_amount.data = float(form.balanced_amount.data) + float(form.paidamount.data)
-                    form.total_payable.data = float(form.total_payable.data) + float(removed_minus)
-                else:
-                    form.balanced_amount.data = float(form.paidamount.data) + float(form.balanced_amount.data)
-                    form.total_payable.data = float(form.paidamount.data) - float(form.total_payable        .data)
-               # form.total_payable.data = 
-            else:
-                form.total_payable.data = float(form.balanced_amount.data) - float(form.total_payable.data)
-                form.balanced_amount.data = float(form.total_payable.data)
-                form.paidamount.data = 0.00
+            flash('Please select payment type',category='danger')
+            return redirect(request.url)
                 
         month = datetime.today()
         #dt = calendar.monthrange(month.year,month.month)[1]
@@ -317,6 +343,19 @@ def tenant_payment():
         _tenant_month = TenantPayments(month_name = calendar.month_name[month.month], date_start = datetime.today(),  date_end = form.date_end.data, tenant_id =form.tenant_id.data, total_payable = form.total_payable.data, months_of_payment = month_of_payment+1, paidamount = form.paidamount.data, paymentdate = datetime.today(), house_id = form.house_id.data, balanced_amount = form.balanced_amount.data, payment_receipt = form.payment_receipt.data)
         db.session.add(_tenant_month)
         db.session.commit()
+        tenObj = db.session.query(Tenant).filter_by(id=form.tenant_id.data).first()
+        fullname = tenObj.first_name+'-'+tenObj.surname
+        houseObj = db.session.query(HouseProperty).filter_by(id = form.house_id.data).first()
+        client = Client(account_sid, auth_token)
+
+        message = client.messages \
+            .create(
+                body=f'Kodi ya shilingi: {form.paidamount.data} kwa nyumba: {houseObj.house_name} limelipwa na: {fullname} tarehe: {datetime.today()}',
+                from_='+12542795811',
+                to='+255 769 176 767'
+            )
+
+        print(message.sid)
        
         return redirect(url_for('payment_list'))
     if form.errors != {}:
@@ -379,10 +418,11 @@ def month_diff(d1, d2):
     diff = (12 * d1.year + d1.month) - (12 * d2.year + d2.month)
     return diff
 
+#RETURNS ARRAY OBJECT FOR TENANT
 @app.route('/searchtenant/<phone>')
 def search_by_phone(phone):
     
-    tenants = db.session.query(Tenant, TenantPayments).filter(Tenant.house_id==TenantPayments.house_id).filter_by(phone = phone).add_columns(Tenant.id,Tenant.first_name,Tenant.surname,Tenant.rent_per_month, Tenant.house_id,TenantPayments.balanced_amount).all()
+    tenants = db.session.query(Tenant).filter_by(phone = phone).add_columns(Tenant.id,Tenant.first_name,Tenant.surname,Tenant.rent_per_month, Tenant.house_id).all()
     tenantArray = []
     for ten in tenants:
         tenantObj = {}
@@ -390,10 +430,21 @@ def search_by_phone(phone):
         tenantObj['first_name'] = ten.first_name
         tenantObj['surname'] = ten.surname
         tenantObj['rent_per_month'] = ten.rent_per_month
-        tenantObj['balanced_amount']= ten.balanced_amount
         tenantObj['house_id'] = ten.house_id
         tenantArray.append(tenantObj)
     return jsonify({'tenants': tenantArray})
+
+#RETURNS BALANCE AMOUNT FOR A TENANT
+@app.route('/balancesearch/<int:id>')
+def balance_search(id):
+    
+    paymentObj = db.session.query(TenantPayments).order_by(TenantPayments.tenant_id.desc()).filter(TenantPayments.tenant_id == id).all()
+    paymentArray = []
+    for pay in paymentObj:
+        payObj = {}
+        payObj['balanced_amount'] = pay.balanced_amount
+        paymentArray.append(payObj)
+    return jsonify({'paymentamount': paymentArray})
 
 
 

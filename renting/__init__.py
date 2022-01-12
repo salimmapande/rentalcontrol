@@ -14,6 +14,9 @@ login_manager = LoginManager(app)
 login_manager.login_view = "login_page"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+app.jinja_env.auto_reload = True
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 # from renting.models import HouseProperty, Tenant, TenantPayments, User
 # db.drop_all()
 # db.create_all()

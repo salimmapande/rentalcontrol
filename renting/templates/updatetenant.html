@@ -6,27 +6,27 @@ Update House
 {% block content %}
 
 <div class="content-wrapper">
-    <div class="content-heading"><h1>Update House</h1></div>
+    <div class="content-heading"><h1>BADILI TAARIFA ZA MPANGAJI</h1></div>
     <div class="container-fluid">
        <div class="card card-default d-lg-block">
           <div class="row">
              <div class="col col-xs-12 col-sm-8 col-md-8 col-lg-8">
-                <div class="card-title text-left alert alert-default"><b style="font-size:22px;">Update house details</b></div>
+                <div class="card-title text-left alert alert-default"><b style="font-size:22px;">TAARIFA ZA MPANGAJI</b></div>
                 <div class="card-body">
                    <form class="form-updatetenant" method="POST" action="">
                      
                       <fieldset>
                         <legend></legend>
-                        Tenant Name:
+                        JINA LA MPANGAJI:
                        <input type="text" name="first_name" value="{{ tenant_to_update.first_name }}" class="form-control">
                        <p></p>
-                       Surname:
+                       JINA LA UKOO:
                        <input type="text" name="surname" value="{{ tenant_to_update.surname }}" class="form-control">
                        <p></p>
-                       NIDA:
+                       NAMBA YA NIDA:
                        <input type="text" name="nida" value="{{ tenant_to_update.nida }}" class="form-control">
                        <p></p>
-                       Phone Number:
+                       NAMBA YA SIMU:
                        <input type="text" name="phone" value="{{ tenant_to_update.phone }}" class="form-control">
                        <p></p>
                        Email::
@@ -35,7 +35,7 @@ Update House
                        
                      
                        <p></p>
-                         House
+                         NYUMBA
                         <select id ="house_id" name="house_id" class="form-control">
                           
                            {% for h in choices %}
@@ -44,16 +44,16 @@ Update House
                         </select>
                        <p></p>
                   
-                       Cost for each room:
+                       GHARAMA KWA CHUMBA:
                        <input type="text" id="price_each_room" name="price_each_room" value="{{ tenant_to_update.price_each_room }}" class="form-control">
                        <p></p>
-                       Rent per Month:
+                       KODI YA MWEZI:
                        <input type="text" d="rent_per_month" name="rent_per_month" value="{{ tenant_to_update.rent_per_month }}" class="form-control">
                   
                     </fieldset>
                       <br>
                    
-                      <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Update">
+                      <input class="btn btn-primary" id="submit" name="submit" type="submit" value="BADILI">
                    </form>
                 </div>
              </div>
