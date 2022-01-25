@@ -1,8 +1,13 @@
 #from _typeshed import ReadableBuffer
 from datetime import date, datetime
-from os import error, pathsep, stat
-import re
+from genericpath import exists
+from gzip import READ
+from os import error, path, pathsep
+from re import T
+#import re
+from threading import Thread
 from types import resolve_bases
+
 #from typing_extensions import Required
 from flask.helpers import url_for
 from flask.scaffold import _matching_loader_thinks_module_is_package
@@ -21,7 +26,7 @@ from wtforms.form import Form
 from wtforms.validators import ValidationError
 from wtforms.widgets.core import DateTimeLocalInput, TableWidget
 from renting import app
-from flask import Flask, render_template, flash, request, jsonify
+from flask import Flask, render_template, flash, request, jsonify, session
 from renting import db
 import calendar
 from sqlalchemy import (Table, Column, String, Integer,
@@ -29,15 +34,19 @@ from sqlalchemy import (Table, Column, String, Integer,
 from flask_login import login_user, logout_user, current_user
 from sqlalchemy.sql import func
 import renting
+import time
+
+# import picamera.mmal as mmal
+import atexit
 from twilio.rest import Client
 from renting.forms import HouseForm, TenantForm, TenantPaymentForm, RegisterForm, LoginForm
 from renting.models import HouseProperty, Tenant, TenantPayments, User
-
+from apscheduler.schedulers.background import BackgroundScheduler
 from os.path import os, dirname, realpath
 account_sid ="" #"AC23ae688c6704ed6fb3b1ca2204fb9b2f"
 auth_token = "" #"51f5831d6594363a0d6a4cdbcd66a211"
 # LOGIN USER BEGINS
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login_page():
     form = LoginForm()
     if form.validate_on_submit():
@@ -45,6 +54,7 @@ def login_page():
         if attempted_user and attempted_user.check_password(attempted_password=form.password.data):
             login_user(attempted_user)
             flash(f'You have successfully logged in as { attempted_user.username }', category='success')
+            #session['username'] = attempted_user.username
             return redirect(url_for('home_page'))
         else:
             flash(f'Username and Password incorrect, please try again', category='danger')
@@ -67,7 +77,12 @@ def logout_page():
 def register_page():
     form = RegisterForm()
     if form.validate_on_submit():
-        flash(form.surname)
+        #flash(form.surname)
+        exists = db.session.query(User.id).filter_by(id=1).first() is not None
+        if exists:
+            flash('Tafadhali wasiliana na Admin')
+            return redirect(request.url)
+     
         _user = User(first_name = form.first_name.data,surname = form.surname.data,username = form.username.data,
                     email=form.email.data, 
                     phone = form.phone.data,
@@ -84,7 +99,8 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 #HOME ########### BEGINS
-@app.route("/")
+
+@app.route("/home_page")
 def home_page():
     tenant_month = TenantPayments.create_defaults()
     _date = datetime.today()
@@ -92,7 +108,11 @@ def home_page():
     tenant = TenantPayments.query.filter_by(month_name = _momth)
     dt = datetime.today()
     year = dt.year
-    return render_template('index.html', tenant_month=tenant_month,tenant = tenant, year=year)
+    house = HouseProperty.query.all()
+    
+    
+    return render_template('index.html', tenant_month=tenant_month,tenant = tenant, year=year, houses = house)
+    
 #HOME ENDS
 
 #HOUSE##### BEGINS 
@@ -103,6 +123,13 @@ def house_list_page():
     return render_template('house_list.html', results = results)
 # HOUSE LIST VIEW ENDS
 
+#GET HOUSE BY ID ### BEGINS
+@app.route('/gethouse/<int:id>')
+def get_house(id):
+    house = db.session.query(HouseProperty, Tenant).filter(HouseProperty.id==Tenant.house_id).filter_by(id=id).add_columns(HouseProperty.house_name, HouseProperty.house_location, HouseProperty.number_of_room, HouseProperty.category, func.sum(Tenant.num_room_to_take).label("room_taken")).first()
+    return render_template('house_by_id.html', house = house)
+
+# ENDS
 #CREATING HOUSE
 @app.route('/createhouse', methods=['GET','POST'])
 def house_page():
@@ -156,14 +183,14 @@ def confirm_delete(id):
 #TENANT LIST VIEW
 @app.route('/tenantlist')
 def tenant_list_page():
-    results = db.session.query(Tenant, HouseProperty).filter(Tenant.house_id == HouseProperty.id).add_columns(Tenant.first_name,Tenant.surname,Tenant.nida,Tenant.num_room_to_take, Tenant.phone, Tenant.rent_per_month, HouseProperty.house_name,Tenant.id, Tenant.image_path)
+    results = db.session.query(Tenant, HouseProperty).filter(Tenant.house_id == HouseProperty.id).add_columns(Tenant.first_name,Tenant.surname,Tenant.nida,Tenant.num_room_to_take, Tenant.phone, Tenant.rent_per_month, HouseProperty.house_name,Tenant.id, Tenant.image_path, Tenant.email)
     return render_template('tenantlist.html', results=results)
 
 #CREATING TENENT
 @app.route('/leasetenant', methods = ['GET','POST'])
 def lease_tenant():
     form = TenantForm()
-    #house = HouseProperty.query.all()
+    fullnumber=''
     if form.validate_on_submit():
         file = request.files['image']
         filename = ''
@@ -175,8 +202,27 @@ def lease_tenant():
         elif not ALLOWED_EXTENSIONS:
             flash('Allowed image types are -> png, jpg, jpeg, gif', category='danger')
             return redirect(request.url)
+        
+        if form.phone.data.isnumeric():
+            if len(str(form.phone.data)) >=10:
+                nozero = str(form.phone.data)[-9:]
+                fullnumber = "255"+nozero
+        else:
+            raise ValidationError(f'Namba ya simu haitakiwi kuwa na herufi, tafadhali ihakiki', category='danger')
+           
+        if form.first_name.data.isnumeric():
+            flash(f'Jina la kwanza halitakiwi kuwa na namba, tafadhali hakiki jina', category='danger')
+            return redirect(request.url)
+        else:
+            pass
+        if form.surname.data.isnumeric():
+            flash(f'Jina la ukoo halitakiwi kuwa na namba, tafadhali hakiki jina la ukoo', category='danger')
+            return redirect(request.url)
+        else:
+            pass
 
-        form.house_id.choices=[(h.id, h.haouse_name) for h in HouseProperty.query.all()]
+
+        form.house_id.choices=[(h.id, h.house_name) for h in HouseProperty.query.all()]
         houseObj = db.session.query(HouseProperty).filter_by(id = form.house_id.data).first()
         num_rooms = houseObj.number_of_room
         num_of_room_taken = 0
@@ -190,13 +236,16 @@ def lease_tenant():
         if int(form.num_room_to_take.data) > int(rooms_available):
             flash(f'This house has only {rooms_available} room(s) left, please try another house', category='danger')
             return redirect(request.url)
-
-        _tenant = Tenant(first_name = form.first_name.data.upper(), surname = form.surname.data.upper(),nida = form.nida.data, phone = form.phone.data, email = form.email.data, house_id = form.house_id.data, image_path = os.path.join(app.config['UPLOAD_FOLDER'],filename), rent_per_month = form.rent_per_month.data, num_room_to_take = form.num_room_to_take.data,price_each_room = form.price_each_room.data)
-        db.session.add(_tenant)
-        db.session.commit()
+     
+        _tenant = Tenant(first_name = form.first_name.data.upper(), surname = form.surname.data.upper(),nida = form.nida.data, phone = fullnumber, email = form.email.data, house_id = form.house_id.data, image_path = file.filename, rent_per_month = form.rent_per_month.data, num_room_to_take = form.num_room_to_take.data,price_each_room = form.price_each_room.data, date_moved_in = datetime.today())
+        try:
+            db.session.add(_tenant)
+            db.session.commit()
+        except:
+            db.session.rollback()
         return redirect(url_for('tenant_list_page'))
     if form.errors != {}:
-        flash(f'There was error {form.errors} create the tenant', category='danger')
+        flash(f'Kulikuwa na tatizo {form.errors} katika kusajili mpangaji', category='danger')
    
     return render_template('leasetenant.html', form = form)
 
@@ -251,7 +300,15 @@ def tenant_monthly(month_name):
    
     tenant = db.session.query(TenantPayments, Tenant).filter(Tenant.id == TenantPayments.tenant_id).filter_by(month_name = month_name).add_columns(Tenant.first_name,Tenant.surname, TenantPayments.total_payable,TenantPayments.month_name, TenantPayments.paidamount, TenantPayments.paymentdate, (TenantPayments.paidamount - TenantPayments.total_payable).label("balance"))
     return render_template('tenantmonthly.html', tenant =tenant)
+#DELETE TENANT ### ENDS
 
+#TENANT DETAILS OVERVIEW
+@app.route('/tenantdetails/<int:id>')
+def tenant_details(id):
+    tenObj = db.session.query(Tenant, HouseProperty).filter(Tenant.house_id == HouseProperty.id).filter_by(id=id).add_columns(Tenant.first_name,Tenant.surname,Tenant.nida,Tenant.num_room_to_take, Tenant.phone, Tenant.rent_per_month, HouseProperty.house_name,Tenant.id, Tenant.image_path, Tenant.email, Tenant.date_moved_in).first()
+    
+    return render_template('tenantdetails.html', tenObj = tenObj)
+#TENANT OVERVIEW ENDS
 #PAYMENT MODULE #### BEGINS
 #CREATE PAYMENT
 @app.route('/tenantpayment', methods=['GET','POST'])
@@ -392,6 +449,7 @@ def confirm_delete_payment(id):
     return render_template('confirmdeletepayment.html', id = id, to_delete=to_delete)
 #CONFIRM DELETE A PAYMENT #### ENDS
 
+
 ###########################################
 # FUNCTIONS
 # SEARCH FOR TENANTS BY HOUSE_ID ## BEGINS
@@ -445,6 +503,7 @@ def balance_search(id):
         payObj['balanced_amount'] = pay.balanced_amount
         paymentArray.append(payObj)
     return jsonify({'paymentamount': paymentArray})
+
 
 
 

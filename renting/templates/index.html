@@ -5,19 +5,19 @@ Home Page
 {% endblock %}
 {% block content %}
 
-<h1 class="mt-4">Rents Due for the year {{year}}</h1>
+<h1 class="mt-4">Upangishaji wa nyumba {{year}}</h1>
 
 <ol class="breadcrumb mb-4">
-    <li class="breadcrumb-item active">Your Tenants Monthly Payments</li>
+    <li class="breadcrumb-item active">Nyumba</li>
 </ol>
-    {% for month in tenant_month %}
+    {% for house in houses %}
     <div class="col-md-2 mb-2">
-        <div class="card bg-primary text-white shadow">
+        <div class="card bg-dark text-white shadow">
            
-           <a href="tenantmonthly/{{month.month_name}}" style="text-decoration: none;">
+           <a href="gethouse/{{house.id}}" style="text-decoration: none;">
                 <div class="card-body">
                     
-                    <div class="text-white-50">{{month.month_name}} </div>
+                    <div class="text-white-50">{{house.house_name}} </div>
                 </div>
             </a>
         </div>

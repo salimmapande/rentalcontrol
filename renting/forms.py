@@ -42,17 +42,35 @@ class TenantPaymentForm(FlaskForm):
 
 
 class TenantForm(FlaskForm):
-    first_name = StringField(label="JINA LA KWANZA: ", validators=[DataRequired()])
-    surname = StringField(label="JINA LA UKOO: ", validators=[DataRequired()])
+    def check_numeric_nida(flaskform, nida):
+        if nida.data.isnumeric():
+            pass
+        else:
+            raise ValidationError('Namba ya NIDA ni tarakimu na si herufi, tafhadhli hakiki')
+    
+    def check_numeric_first_name(flaskform, first_name):
+        if first_name.data.isnumeric():
+            raise ValidationError('Jina la kwanza ni herufi na si tarakimu, tafhadhli hakiki')
+        else:
+            pass
+    def check_numeric_surname(flaskform, surname):
+        if surname.data.isnumeric():
+            raise ValidationError('Jina la Ukoo ni herufi na si tarakimu, tafhadhli hakiki')
+        else:
+            pass
+    first_name = StringField(label="JINA LA KWANZA: ", validators=[DataRequired(),check_numeric_first_name])
+    surname = StringField(label="JINA LA UKOO: ", validators=[DataRequired(), check_numeric_surname])
     phone = StringField(label="NAMBA YA SIMU: ", validators=[DataRequired()])
     email = StringField(label="BARUA PEPE(Email): ", validators=[Email()])
-    nida = StringField(label="NAMBA YA NIDA: ", validators=[DataRequired()])
-    house_id = SelectField("JINA LA NYUMBA: ", choices=[(h.id, h.house_name) for h in HouseProperty.query.all()], default=(1,"CHAGUA NYUMBA"))
+    nida = StringField(label="NAMBA YA NIDA: ", validators=[DataRequired(), check_numeric_nida])
+    house_id = SelectField("JINA LA NYUMBA: ", choices=[(h.id, h.house_name.upper()) for h in HouseProperty.query.all()], default=(1,"CHAGUA NYUMBA"))
     num_room_to_take = SelectField("IDADI YA VYUMBA", choices=[('CHAGUA IDADI YA VYUMBA'),('1'),('2'),('3'),('4'),('5'),('6'),('7'),('8'),('9'),('10'),('11'),('12')])
     image = StringField(label="PICHA")
     rent_per_month = StringField(label="KODI YA MWEZI")
     price_each_room = StringField(label="KIASI CHA KODI YA MWEZI: ")
+    date_moved_in = DateField(label="TAREHE YA KUHAMIA:")
     submit = SubmitField(label="SAJILI")
+    
 
 class RegisterForm(FlaskForm):
     def validate_username(self, check_user):

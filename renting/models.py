@@ -35,6 +35,14 @@ class Tenant(db.Model):
     rent_per_month = db.Column(db.Float(), nullable = True)
     num_room_to_take = db.Column(db.Integer(), nullable = True)
     price_each_room = db.Column(db.Integer(), nullable = True)
+    date_moved_in = Column(Date, nullable=True)
+
+    @property
+    def price_format(self):
+        if len(str(self.price_each_room)) >= 4:
+            return f"{str(self.price_each_room[:-3])},{str(self.price_each_room)[-3:]}/="
+        else:
+            return f"{self.price_each_room}/="
 
 class HouseProperty(db.Model):
     __tablename__ = 'house_property'

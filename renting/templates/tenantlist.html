@@ -12,20 +12,18 @@ Tenant
                 class="fas fa-download fa-sm text-white-50"></i>PANGISHA MPANGAJI MPYA</a>
     </div>
 </div>
-<div class="card-body">
+
     <table id="datatablesSimple">
         <thead>
             <tr>
                 <th>JINA KAMILI </th>
                
-                <th>NAMBA YA NIDA</th>
-                <th>NAMBA YA SIMU</th>
                 <th>JINA LA NYUMBA</th>
                 <th>IDADI YA VYUMBA</th>
-                <th>KODI YA MWEZI</th>
+               
                 <th></th>
                 <th></th>
-                <th></th>
+                
             </tr>
             
         </thead>
@@ -34,19 +32,18 @@ Tenant
             {% for result in results %}
             <tr>
                 <td>{{ result.first_name + ' ' + result.surname}}</td>
-                <td style="text-align: right;">{{ result.nida }}</td>
-                <td style="text-align: right;">{{ result.phone }}</td>
+          
                 <td style="text-align: right;">{{ result.house_name }}</td>
                 <td>{{ result.num_room_to_take }}</td>
-                <td>{{ result.rent_per_month }}</td>
-                <td style="background-color: green;"><a href="/#/{{ result.id }}" ><span class="fa fa-info" style="font-size: 16px; color: white;" data-bs-toggle="tooltip" data-bs-placement="top" title="Info"></span></a> </td>
+               
+                <td style="background-color: green;"><a href="/tenantdetails/{{ result.id }}" ><span class="fa fa-info" style="font-size: 16px; color: white;" data-bs-toggle="tooltip" data-bs-placement="top" title="Info"></span></a> </td>
                 <td style="background-color: blue;"><a href="/updatetenant/{{ result.id }}"> <span class="fa fa-marker" style='font-size:16px;color:white;' color="&#xf044;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></span></a> </td>
                 <td style="background-color: red;"><a href="/confirmdeletetenant/{{ result.id }}"> <span class="fa fa-trash" style='font-size:16px;color:white;' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></span></a> </td>
-                <td><a href="#">Select</a> </td>
+              
             </tr>
             {% endfor %}
         </tbody>
     </table>
- </div>
+
 
 {% endblock %}
