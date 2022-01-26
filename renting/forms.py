@@ -85,6 +85,7 @@ class RegisterForm(FlaskForm):
     password1  = PasswordField(label='NENOSIRI:', validators=[Length(min=5), DataRequired()])
     password2 = PasswordField(label='HAKIKI NENOSIRI:', validators=[EqualTo('password1'), DataRequired()])
     submit = SubmitField(label='TENGENEZA AKAUNTI')
+    
 
 
 class LoginForm(FlaskForm):

@@ -114,7 +114,12 @@ def home_page():
     return render_template('index.html', tenant_month=tenant_month,tenant = tenant, year=year, houses = house)
     
 #HOME ENDS
-
+# USER ACCOUNT  ### BEGINS 
+@app.route('/user_accounts')
+def user_accounts():
+    users  = User.query.all()
+    return render_template('users.html', users = users)
+# USER ACCOUNT ENDS
 #HOUSE##### BEGINS 
 # HOUSE LIST VIEW    
 @app.route('/house_list')
