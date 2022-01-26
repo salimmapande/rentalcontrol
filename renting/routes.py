@@ -46,7 +46,7 @@ from os.path import os, dirname, realpath
 account_sid ="" #"AC23ae688c6704ed6fb3b1ca2204fb9b2f"
 auth_token = "" #"51f5831d6594363a0d6a4cdbcd66a211"
 # LOGIN USER BEGINS
-@app.route('/', methods=['POST'])
+@app.route('/home', methods=['GET','POST'])
 def login_page():
     form = LoginForm()
     if form.validate_on_submit():
