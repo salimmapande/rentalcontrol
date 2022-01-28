@@ -18,6 +18,7 @@ from sqlalchemy.sql.expression import label
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.sqltypes import Float
 from sqlalchemy.sql.type_api import to_instance
+from validators import url
 from werkzeug.datastructures import  EnvironHeaders
 from werkzeug.utils import redirect, secure_filename
 from werkzeug.wrappers import request
@@ -246,6 +247,7 @@ def lease_tenant():
         try:
             db.session.add(_tenant)
             db.session.commit()
+            return redirect(url_for('tenant_list_page'))
         except ValidationError:
             db.session.rollback()
             flash(f'Kulikuwa na tatizo {ValidationError} katika kusajili mpangaji', category='danger')
