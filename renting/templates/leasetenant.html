@@ -16,19 +16,22 @@ Create Tenant
                         {{ form.hidden_tag() }}
                         <div class="form-group row">
                            <label for="txtPost" class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left">PICHA:</label>
-            
+                     
                            <div class="col-xl-6 col-md-6 col-xs-12">
                               <span class="input-group-btn">
                            
                                  <span class="btn btn-primary btn-file">
                                     <input type="file" id="fileupload" name="image" multiple>
+                                    
                                  </span>
+                                
                               </span>
-                              <input type="text" class="form-control" readonly>
+                             
                            </div>
             
                          </div>
                         <p></p>
+                    
                         <div class="form-group row">
                            {{ form.first_name.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
                                  <div class="col-xl-6 col-md-6 col-xs-12">
@@ -67,7 +70,11 @@ Create Tenant
                         <div class="form-group row">
                            {{ form.house_id.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
                                  <div class="col-xl-6 col-md-6 col-xs-12">
-                                    {{ form.house_id(class="form-control", autocomplete="off") }}
+                                    <select name="house_id" id="house_id" class="form-control">
+                                       {% for house in houses %}
+                                           <option value="{{ house.id }}">{{ house.house_name }}</option>
+                                       {% endfor %}
+                                       </select>
                               </div>
                         </div>
                       

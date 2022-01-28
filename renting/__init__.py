@@ -29,9 +29,9 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 from renting.models import HouseProperty, Tenant, TenantPayments, User
-db.drop_all()
-db.create_all()
-db.session.commit()
+# db.drop_all()
+# db.create_all()
+# db.session.commit()
 
 
 def send_sms_to_all_tenants():

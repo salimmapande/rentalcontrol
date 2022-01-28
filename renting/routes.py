@@ -227,7 +227,7 @@ def lease_tenant():
             pass
 
 
-        form.house_id.choices=[(h.id, h.house_name) for h in HouseProperty.query.all()]
+        #form.house_id.choices=[(h.id, h.house_name) for h in db.session.query(HouseProperty).all()]
         houseObj = db.session.query(HouseProperty).filter_by(id = form.house_id.data).first()
         num_rooms = houseObj.number_of_room
         num_of_room_taken = 0
@@ -246,19 +246,18 @@ def lease_tenant():
         try:
             db.session.add(_tenant)
             db.session.commit()
-        except:
+        except ValidationError:
             db.session.rollback()
-        return redirect(url_for('tenant_list_page'))
-    if form.errors != {}:
-        flash(f'Kulikuwa na tatizo {form.errors} katika kusajili mpangaji', category='danger')
-   
-    return render_template('leasetenant.html', form = form)
+            flash(f'Kulikuwa na tatizo {ValidationError} katika kusajili mpangaji', category='danger')
+        return redirect(request.url)
+    # if form.errors != {}:
+    #     flash(f'Kulikuwa na tatizo {form.errors} katika kusajili mpangaji', category='danger')
+    houses=HouseProperty.query.all()
+    return render_template('leasetenant.html', form = form, houses = houses)
 
 #UPDATE TENENANT
 @app.route('/updatetenant/<int:id>', methods=['GET','POST'])
 def update_tenant_page(id):
-    _tenant=''
-    tenantpayment=''
     form = TenantForm()
     tenant_to_update = db.session.query(Tenant, HouseProperty).filter(Tenant.house_id == HouseProperty.id).filter_by(id = id).add_columns(Tenant.first_name, Tenant.surname, Tenant.nida, HouseProperty.house_name, Tenant.phone, Tenant.image_path, Tenant.email, Tenant.num_room_to_take, Tenant.price_each_room, Tenant.rent_per_month, Tenant.house_id).first()
     house = HouseProperty.query.all()

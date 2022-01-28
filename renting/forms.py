@@ -63,7 +63,7 @@ class TenantForm(FlaskForm):
     phone = StringField(label="NAMBA YA SIMU: ", validators=[DataRequired()])
     email = StringField(label="BARUA PEPE(Email): ", validators=[Email()])
     nida = StringField(label="NAMBA YA NIDA: ", validators=[DataRequired(), check_numeric_nida])
-    house_id = SelectField("JINA LA NYUMBA: ", choices=[(h.id, h.house_name.upper()) for h in HouseProperty.query.all()], default=(1,"CHAGUA NYUMBA"))
+    house_id = SelectField("JINA LA NYUMBA: ", choices=[(h.id, h.house_name.upper()) for h in db.session.query(HouseProperty).all()], default=(1,"CHAGUA NYUMBA"))
     num_room_to_take = SelectField("IDADI YA VYUMBA", choices=[('CHAGUA IDADI YA VYUMBA'),('1'),('2'),('3'),('4'),('5'),('6'),('7'),('8'),('9'),('10'),('11'),('12')])
     image = StringField(label="PICHA")
     rent_per_month = StringField(label="KODI YA MWEZI")
