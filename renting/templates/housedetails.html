@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}
+House Details
+{% endblock %}
+{% block content %}
+      
+          <div class="row">
+             <div class="col col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <div class="card-title text-left alert alert-default"><b style="font-size:22px;">TAARIFA ZA NYUMBA</b></div>
+                <div class="card" style="width:fit-content;">
+                    <img class="card-img-top" src="#" alt="{{house.house_name}}">
+                    
+                    <div class="card-body">
+                    <h5 class="card-title">{{house.house_name}}</h5>
+                    <!-- <p class="card-text">ni mkazi wa {{ house.house_name}}</p> -->
+                    </div>
+                    <ul class="list-group list-group-flush">
+                    <li class="list-group-item">ANUANI YA NYUMBA: {{house.house_location}}</li>
+                    <li class="list-group-item">AINA YA NYUMBA: {{house.category}}</li>
+                    <li class="list-group-item">NAMBA YA GHOROFA: {{house.floor_number}}</li>
+                    <li class="list-group-item">IDADI YA VYUMBA: {{house.number_of_room}}</li>
+                
+                    </ul>
+                    <div class="card-body">
+                        <a href="{{url_for('house_list_page')}}" class="card-link">Back</a>
+                        <!-- <a href="#" class="card-link">Another link</a> -->
+                    </div>
+                </div>
+             </div>
+          </div>
+        </div>
+    </div>
+
+{%endblock %}

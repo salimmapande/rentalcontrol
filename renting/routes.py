@@ -1,4 +1,5 @@
 #from _typeshed import ReadableBuffer
+
 from datetime import date, datetime
 from genericpath import exists
 from gzip import READ
@@ -128,6 +129,12 @@ def house_list_page():
     results = HouseProperty.query.all()
     return render_template('house_list.html', results = results)
 # HOUSE LIST VIEW ENDS
+# HOUSE DETAILS
+@app.route('/housedetails/<int:id>')
+def house_deatils_page(id):
+    house = HouseProperty.query.get_or_404(id)
+    return render_template('housedetails.html', house = house)
+# HOUSE DETAILS ENDS
 
 #GET HOUSE BY ID ### BEGINS
 @app.route('/gethouse/<int:id>')

@@ -19,8 +19,7 @@ House
             <tr>
                 <th>JINA LA NYUMBA </th>
                 <th>SEHEMU</th>
-                <th>GHOROFA</th>
-                <th>IDADI YA VYUMBA</th>
+          
                 <th>AINA YA NUMBA</th>
                 <th></th>
                 <th></th>
@@ -34,10 +33,9 @@ House
             <tr>
                 <td>{{ result.house_name }}</td>
                 <td>{{ result.house_location }}</td>
-                <td style="text-align: right;">{{ result.floor_number }}</td>
-                <td style="text-align: right;">{{ result.number_of_room }}</td>
+
                 <td>{{ result.category }}</td>
-                <td style="background-color: green;"><a href="/#/{{ result.id }}" ><span class="fa fa-info" style="font-size: 16px; color: white;" data-bs-toggle="tooltip" data-bs-placement="top" title="Info"></span></a> </td>
+                <td style="background-color: green;"><a href="/housedetails/{{ result.id }}" ><span class="fa fa-info" style="font-size: 16px; color: white;" data-bs-toggle="tooltip" data-bs-placement="top" title="Info"></span></a> </td>
                 <td style="background-color: blue;"><a href="/updatehouse/{{ result.id }}"> <span class="fa fa-marker" style='font-size:16px;color:white;' color="&#xf044;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"></span></a> </td>
                 <td style="background-color: red;"><a href="/confirmdeletehouse/{{ result.id }}"> <span class="fa fa-trash" style='font-size:16px;color:white;' data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"></span></a> </td>
                
