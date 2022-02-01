@@ -13,10 +13,24 @@ Update House
              <div class="col col-xs-12 col-sm-8 col-md-8 col-lg-8">
                 <div class="card-title text-left alert alert-default"><b style="font-size:22px;">TAARIFA ZA MPANGAJI</b></div>
                 <div class="card-body">
-                   <form class="form-updatetenant" method="POST" action="">
+                   <form class="form-updatetenant" method="POST" action="" enctype="multipart/form-data">
                      
                       <fieldset>
                         <legend></legend>
+                        <div class="form-group row">
+                           PICH YA MPANGAJI:
+                           <div class="col-xl-4 col-md-4 col-xs-12">
+                             
+                              <img class="card-img-top"  src="/static/uploads/{{tenant_to_update.image_path}}" alt="{{tenant_to_update.surname}}">
+                              <span class="btn btn-primary btn-file">
+                                 <input type="file" id="fileupload" name="image"  multiple>
+                                 
+                              </span>
+                           </div>
+                          
+                        </div> 
+                       
+                        <p></p>
                         JINA LA MPANGAJI:
                        <input type="text" name="first_name" value="{{ tenant_to_update.first_name }}" class="form-control">
                        <p></p>

@@ -1,8 +1,10 @@
 #from _typeshed import ReadableBuffer
 
+from ast import Pass
 from datetime import date, datetime
 from genericpath import exists
 from gzip import READ
+from hashlib import new
 from os import error, path, pathsep
 from re import T
 #import re
@@ -44,7 +46,9 @@ from twilio.rest import Client
 from renting.forms import HouseForm, TenantForm, TenantPaymentForm, RegisterForm, LoginForm
 from renting.models import HouseProperty, Tenant, TenantPayments, User
 from apscheduler.schedulers.background import BackgroundScheduler
-from os.path import os, dirname, realpath
+from os.path import os
+
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 account_sid ="" #"AC23ae688c6704ed6fb3b1ca2204fb9b2f"
 auth_token = "" #"51f5831d6594363a0d6a4cdbcd66a211"
 # LOGIN USER BEGINS
@@ -97,7 +101,7 @@ def register_page():
             flash(f'There was an error creating user {err_msg}', category='danger')
     return render_template('register.html', form=form)
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 #HOME ########### BEGINS
@@ -148,7 +152,27 @@ def get_house(id):
 def house_page():
     form =  HouseForm()
     if form.validate_on_submit():
-        _house = HouseProperty(house_name = form.house_name.data.upper(), house_location = form.house_location.data.upper(),floor_number = form.floor_number.data, number_of_room = form.number_of_room.data,category = form.category.data.upper())
+        file = request.files['image']
+        filename = ''
+        if os.path.isfile(file.filename):
+            flash("The file already exists")
+        else:
+            # Rename the file
+            new_name = str(form.house_name.data).replace(" ","_")
+            extension = os.path.splitext(file.filename)[1][1:]
+            file.filename = new_name+"."+extension
+          
+        if file.filename == '':
+           pass
+        if file and allowed_file(file.filename):
+            
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        elif not ALLOWED_EXTENSIONS:
+            flash('Allowed image types are -> png, jpg, jpeg, gif', category='danger')
+            return redirect(request.url)
+     
+        _house = HouseProperty(house_name = form.house_name.data.upper(), house_location = form.house_location.data.upper(),floor_number = form.floor_number.data, number_of_room = form.number_of_room.data,category = form.category.data.upper(), image_path = file.filename)
         try:
             db.session.add(_house)
             db.session.commit()
@@ -168,6 +192,7 @@ def update_house_page(id):
         house_to_update.number_of_room = request.form['number_of_room']
         house_to_update.category = request.form['category']
         house_to_update.rent_amount = request.form['rent_amount']
+        house_to_update.image_path = request.form['image']
         try:
             db.session.commit()
             return redirect(url_for('house_list_page'))
@@ -179,9 +204,15 @@ def update_house_page(id):
 @app.route('/deletehouse/<int:id>')
 def delete_house_page(id):
     house_to_delete = HouseProperty.query.get_or_404(id)
+   
     try:
         db.session.delete(house_to_delete)
         db.session.commit()
+        image = house_to_delete.image_path
+        image_path = app.config['UPLOAD_FOLDER']
+        full_path = str(image_path+image)
+        if os.path.isfile(full_path):
+            os.remove(full_path)
         return redirect(url_for('house_list_page'))
     except ValueError:
         flash('There was error {ValueError} delete house')
@@ -207,6 +238,16 @@ def lease_tenant():
     if form.validate_on_submit():
         file = request.files['image']
         filename = ''
+        if os.path.isfile(file.filename):
+            flash("The file already exists")
+        else:
+            # Rename the file
+            new_name = str(form.surname.data).replace(" ","_")
+            extension = os.path.splitext(file.filename)[1][1:]
+            # count num of rows 
+            count = db.session.query(Tenant).count()
+            _count = count+1
+            file.filename = new_name+str(_count)+"."+extension
         if file.filename == '':
            pass
         if file and allowed_file(file.filename):
@@ -259,8 +300,8 @@ def lease_tenant():
             db.session.rollback()
             flash(f'Kulikuwa na tatizo {ValidationError} katika kusajili mpangaji', category='danger')
         return redirect(request.url)
-    # if form.errors != {}:
-    #     flash(f'Kulikuwa na tatizo {form.errors} katika kusajili mpangaji', category='danger')
+    if form.errors != {}:
+        flash(f'Kulikuwa na tatizo {form.errors} katika kusajili mpangaji', category='danger')
     houses=HouseProperty.query.all()
     return render_template('leasetenant.html', form = form, houses = houses)
 
@@ -276,16 +317,38 @@ def update_tenant_page(id):
     state = {'house_id':selected}
     #flash(state)
     if request.method == 'POST':
+        file = request.files['image']
+        #flash(file.filename)
+        filename = ''
+        if file.filename == '':
+            file.filename  = tenant_to_update.image_path
+        else:
+            if file and allowed_file(file.filename):
+                # Rename the file
+                new_name = str(form.surname.data).replace(" ","_")
+                extension = os.path.splitext(file.filename)[1][1:]
+                # count num of rows 
+                count = db.session.query(Tenant).count()
+                _count = count+1
+                file.filename = new_name+str(_count)+"."+extension
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            elif not ALLOWED_EXTENSIONS:
+                flash('Allowed image types are -> png, jpg, jpeg, gif', category='danger')
+                return redirect(request.url)
 
-        db.session.query(Tenant).filter_by(id=id).update({'first_name': request.form['first_name'].upper(),
+        db.session.query(Tenant).filter_by(id=id)\
+        .update({'first_name': request.form['first_name'].upper(),
                 'surname': request.form['surname'].upper(),
                 'nida': request.form['nida'],
                 'house_id': request.form['house_id'],
                 'phone': request.form['phone'],
-                'email': request.form['email'],})
+                'email': request.form['email'],
+                'image_path': file.filename})
    
         try:
             db.session.commit()
+           
             return redirect(url_for('tenant_list_page'))
         except ValidationError:
              flash('There was error {ValidationError} updating tenant', category='danger')
@@ -299,6 +362,11 @@ def delete_tenant_page(id):
     try:
         db.session.delete(tenant_to_delete)
         db.session.commit()
+        image = tenant_to_delete.image_path
+        image_path = app.config['UPLOAD_FOLDER']
+        full_path = str(image_path+image)
+        if os.path.isfile(full_path):
+            os.remove(full_path)
         return redirect(url_for('tenant_list_page'))
     except ValueError:
         flash('There was error {ValueError} delete tenant')

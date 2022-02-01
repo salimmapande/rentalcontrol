@@ -20,6 +20,7 @@ class HouseForm(FlaskForm):
     number_of_room = StringField(label="IDADI YA VYUMBA", validators=[DataRequired()])
     floor_number = StringField(label="IDADI YA GHOROFA", validators=[DataRequired()])
     category = SelectField("AINA YA NYUMBA", choices=[('Select Category'),('GOROFA'),('NYUMBA YA CHINI'),('APPARTMENT')])
+    image = StringField(label="PICHA YA NYUMBA")
     submit = SubmitField(label='SAJILI')
 
 class TenantPaymentForm(FlaskForm):

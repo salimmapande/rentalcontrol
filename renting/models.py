@@ -52,7 +52,7 @@ class HouseProperty(db.Model):
     floor_number = db.Column(db.Integer())
     number_of_room = db.Column(db.Integer())
     category = db.Column(db.String(length=30))
-    
+    image_path = db.Column(db.String(200), nullable=True)
 
 
 class TenantPayments(db.Model):

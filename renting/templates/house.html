@@ -12,8 +12,25 @@ House
              <div class="col col-xs-12 col-sm-8 col-md-8 col-lg-8">
                 <div class="card-title text-left alert alert-default"><b style="font-size:18px;">Create house for rent</b></div>
                 <div class="card-body">
-                   <form class="form-house" method="POST" action="">
+                   <form class="form-house" method="POST" action="/createhouse" enctype="multipart/form-data">
                      {{ form.hidden_tag() }}
+                     <div class="form-group row">
+                        
+                        {{form.image.label( class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left")}}
+                        <div class="col-xl-6 col-md-6 col-xs-12">
+                           <span class="input-group-btn">
+                        
+                              <span class="btn btn-primary btn-file">
+                                 <input type="file" id="fileupload" name="image" multiple>
+                                 
+                              </span>
+                             
+                           </span>
+                          
+                        </div>
+         
+                      </div>
+                      <p></p>
                      <div class="form-group row">
                         {{ form.house_name.label(class="text-bold col-xl-4 col-md-4 col-xs-12 col-form-label text-left") }}
                               <div class="col-xl-6 col-md-6 col-xs-12">
